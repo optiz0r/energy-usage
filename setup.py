@@ -21,6 +21,10 @@ setup(
         'energy_usage': ['config_default.yaml'],
     },
 
+    # Because the package contains non-python files, it must be installed
+    # in uncompressed format, not as a zip-format .egg file
+    zip_safe=False,
+
     # Executable scripts
     # Wrappers will be automatically generated using the correct python shebang
     # to run the methods indicated
