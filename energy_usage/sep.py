@@ -11,26 +11,38 @@ def parse_sep(topic, payload_str):
 
     :param topic: str Topic SEP payload was received from
     :param payload_str: str SEP payload message as a string
-    :return: 
+    :return:
     """
+    def _get_metric(path, type=int):
+        value = payload
+        try:
+            for hop in path:
+                value = value[hop]
+            if type is int:
+                return int(value, 16)
+            else:
+                return type(value)
+        except KeyError:
+            return None
+
     payload = json.loads(payload_str)
     timestamp = datetime.datetime.fromtimestamp(payload["gmtime"], tz=datetime.timezone.utc)
-    electricity_consumption = int(payload["elecMtr"]["0702"]["04"]["00"], 16)
-    electricity_daily_consumption = int(payload["elecMtr"]["0702"]["04"]["01"], 16)
-    electricity_weekly_consumption = int(payload["elecMtr"]["0702"]["04"]["30"], 16)
-    electricity_monthly_consumption = int(payload["elecMtr"]["0702"]["04"]["40"], 16)
-    electricity_multiplier = int(payload["elecMtr"]["0702"]["03"]["01"], 16)
-    electricity_divisor = int(payload["elecMtr"]["0702"]["03"]["02"], 16)
-    electricity_meter = int(payload["elecMtr"]["0702"]["00"]["00"], 16)
-    electricity_mpan = payload["elecMtr"]["0702"]["03"]["07"]
-    gas_daily_consumption = int(payload["gasMtr"]["0702"]["0C"]["01"], 16)
-    gas_weekly_consumption = int(payload["gasMtr"]["0702"]["0C"]["30"], 16)
-    gas_monthly_consumption = int(payload["gasMtr"]["0702"]["0C"]["40"], 16)
-    gas_multiplier = int(payload["gasMtr"]["0702"]["03"]["01"], 16)
-    gas_divisor = int(payload["gasMtr"]["0702"]["03"]["02"], 16)
-    gas_meter = int(payload["gasMtr"]["0702"]["00"]["00"], 16)
-    gas_mpan = payload["gasMtr"]["0702"]["03"]["07"]
-    device_gid = payload["gid"]
+    electricity_consumption = _get_metric(["elecMtr", "0702", "04", "00"])
+    electricity_daily_consumption = _get_metric(["elecMtr", "0702", "04", "01"])
+    electricity_weekly_consumption = _get_metric(["elecMtr", "0702", "04", "30"])
+    electricity_monthly_consumption = _get_metric(["elecMtr", "0702", "04", "40"])
+    electricity_multiplier = _get_metric(["elecMtr", "0702", "03", "01"])
+    electricity_divisor = _get_metric(["elecMtr", "0702", "03", "02"])
+    electricity_meter = _get_metric(["elecMtr", "0702", "00", "00"])
+    electricity_mpan = _get_metric(["elecMtr", "0702", "03", "07"], str)
+    gas_daily_consumption = _get_metric(["gasMtr", "0702", "0C", "01"])
+    gas_weekly_consumption = _get_metric(["gasMtr", "0702", "0C", "30"])
+    gas_monthly_consumption = _get_metric(["gasMtr", "0702", "0C", "40"])
+    gas_multiplier = _get_metric(["gasMtr", "0702", "03", "01"])
+    gas_divisor = _get_metric(["gasMtr", "0702", "03", "02"])
+    gas_meter = _get_metric(["gasMtr", "0702", "00", "00"])
+    gas_mpan = _get_metric(["gasMtr", "0702", "03", "07"], str)
+    device_gid = _get_metric(["gid"], str)
 
     assert(int(payload["elecMtr"]["0702"]["03"]["00"], 16) == 0) # kWh
     assert(int(payload["gasMtr"]["0702"]["03"]["01"], 16) == 1) # m3
