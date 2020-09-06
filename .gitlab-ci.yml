@@ -3,6 +3,7 @@ image: docker:dind
 variables:
   CONTAINER_TEST_IMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
   CONTAINER_RELEASE_IMAGE: "$CI_REGISTRY_IMAGE:latest"
+  CONTAINER_TAGGED_IMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
 
 stages:
   - build
@@ -26,3 +27,12 @@ release-image:
     - docker push "$CONTAINER_RELEASE_IMAGE"
   only:
     - master
+
+tagged-image:
+  stage: release
+  script:
+    - docker pull "$CONTAINER_TEST_IMAGE"
+    - docker tag "$CONTAINER_TEST_IMAGE" "$CONTAINER_TAGGED_IMAGE"
+    - docker push "$CONTAINER_TAGGED_IMAGE"
+  only:
+    - tags
