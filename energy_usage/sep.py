@@ -2,6 +2,7 @@
 """
 import datetime
 import json
+import logging
 
 
 def parse_sep(topic, payload_str):
@@ -13,6 +14,8 @@ def parse_sep(topic, payload_str):
     :param payload_str: str SEP payload message as a string
     :return:
     """
+    logger = logging.getLogger(__name__)
+
     def _get_metric(path, type=int):
         value = payload
         try:
@@ -23,9 +26,19 @@ def parse_sep(topic, payload_str):
             else:
                 return type(value)
         except KeyError:
+            logger.debug("Ignoring payload missing metric: %s", ".".join(path))
             return None
 
     payload = json.loads(payload_str)
+
+    try:
+        assert(_get_metric(["elecMtr", "0702", "03", "00"]) == 0)  # kWh
+        assert(_get_metric(["gasMtr", "0702", "03", "01"]) == 1)  # m3
+        assert(_get_metric(["gasMtr", "0702", "03", "12"]) == 0)  # kWh
+    except AssertionError:
+        logger.warning("Received a payload without expected data")
+        return None
+
     timestamp = datetime.datetime.fromtimestamp(payload["gmtime"], tz=datetime.timezone.utc)
     electricity_consumption = _get_metric(["elecMtr", "0702", "04", "00"])
     electricity_daily_consumption = _get_metric(["elecMtr", "0702", "04", "01"])
@@ -43,10 +56,6 @@ def parse_sep(topic, payload_str):
     gas_meter = _get_metric(["gasMtr", "0702", "00", "00"])
     gas_mpan = _get_metric(["gasMtr", "0702", "03", "07"], str)
     device_gid = _get_metric(["gid"], str)
-
-    assert(int(payload["elecMtr"]["0702"]["03"]["00"], 16) == 0) # kWh
-    assert(int(payload["gasMtr"]["0702"]["03"]["01"], 16) == 1) # m3
-    assert(int(payload["gasMtr"]["0702"]["03"]["12"], 16) == 0) # kWh
 
     data = {
         'timestamp': timestamp,

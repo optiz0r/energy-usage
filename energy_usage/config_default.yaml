@@ -1,6 +1,7 @@
 ---
 ca_certs: /etc/ssl/certs/ca-certificates.crt
 debug: false
+noop: False
 mqtt:
   server: glowmqtt.energyhive.com
   port: 8883
