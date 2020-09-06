@@ -1,0 +1,8 @@
+---
+mqtt:
+  username: brightuser
+  password: brightpass
+  topic: SMART/HILD/xxxxxxxx
+influx:
+  server: localhost
+  port: 8428
