@@ -19,21 +19,21 @@
       "name": "VAR_GAS_UNIT",
       "type": "constant",
       "label": "gas_unit",
-      "value": "0.0277",
+      "value": "0.0290",
       "description": ""
     },
     {
       "name": "VAR_ELECTRICITY_STANDING",
       "type": "constant",
       "label": "electricity_standing",
-      "value": "0.1932",
+      "value": "0.2163",
       "description": ""
     },
     {
       "name": "VAR_ELECTRICITY_UNIT",
       "type": "constant",
       "label": "electricity_unit",
-      "value": "0.1579",
+      "value": "0.1593",
       "description": ""
     }
   ],
@@ -80,7 +80,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1599997887969,
+  "iteration": 1601071965643,
   "links": [],
   "panels": [
     {
@@ -102,6 +102,7 @@
       "fieldConfig": {
         "defaults": {
           "custom": {},
+          "decimals": 2,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -130,7 +131,7 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -141,6 +142,7 @@
       "targets": [
         {
           "expr": "electricity_meter_reading",
+          "instant": false,
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -156,6 +158,7 @@
       "fieldConfig": {
         "defaults": {
           "custom": {},
+          "decimals": 2,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -184,7 +187,7 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -239,7 +242,7 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -250,7 +253,7 @@
       "targets": [
         {
           "expr": "(gas_meter_reading) * 10.96497333",
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -305,7 +308,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 2,
+        "h": 6,
         "w": 6,
         "x": 0,
         "y": 5
@@ -321,7 +324,7 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -346,7 +349,7 @@
               "type": "fill"
             }
           ],
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "Now",
           "measurement": "electricity",
@@ -371,9 +374,27 @@
             ]
           ],
           "tags": []
+        },
+        {
+          "expr": "range_avg(electricity_draw)",
+          "interval": "",
+          "legendFormat": "Average",
+          "refId": "D"
+        },
+        {
+          "expr": "range_min(electricity_draw)",
+          "interval": "",
+          "legendFormat": "Min",
+          "refId": "B"
+        },
+        {
+          "expr": "range_max(electricity_draw)",
+          "interval": "",
+          "legendFormat": "Max",
+          "refId": "C"
         }
       ],
-      "title": "Current Draw",
+      "title": "Load (Selected Period)",
       "type": "stat"
     },
     {
@@ -407,7 +428,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
+        "h": 6,
         "w": 6,
         "x": 6,
         "y": 5
@@ -423,7 +444,7 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -432,6 +453,13 @@
       },
       "pluginVersion": "7.1.5",
       "targets": [
+        {
+          "expr": "range_avg(electricity_draw) * $__range_s / 3600",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Selected",
+          "refId": "D"
+        },
         {
           "expr": "electricity_consumption_daily",
           "groupBy": [
@@ -448,7 +476,7 @@
               "type": "fill"
             }
           ],
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "Today",
           "measurement": "electricity",
@@ -476,14 +504,14 @@
         },
         {
           "expr": "electricity_consumption_weekly",
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "This week",
           "refId": "B"
         },
         {
           "expr": "electricity_consumption_monthly",
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "This month",
           "refId": "C"
@@ -523,7 +551,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
+        "h": 6,
         "w": 6,
         "x": 12,
         "y": 5
@@ -539,15 +567,21 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "value_and_name"
       },
       "pluginVersion": "7.1.5",
       "targets": [
+        {
+          "expr": "(range_avg(electricity_draw) * $__range_s / 3600) * $electricity_unit",
+          "interval": "",
+          "legendFormat": "Selected",
+          "refId": "D"
+        },
         {
           "expr": "electricity_consumption_daily * $electricity_unit",
           "groupBy": [
@@ -564,7 +598,7 @@
               "type": "fill"
             }
           ],
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "Today",
           "measurement": "electricity",
@@ -592,14 +626,14 @@
         },
         {
           "expr": "electricity_consumption_weekly * $electricity_unit",
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "This week",
           "refId": "B"
         },
         {
           "expr": "electricity_consumption_monthly * $electricity_unit",
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "This month",
           "refId": "C"
@@ -611,7 +645,7 @@
     {
       "cacheTimeout": null,
       "datasource": "${DS_VICTORIAMETRICS}",
-      "description": "",
+      "description": "Including standing charges",
       "fieldConfig": {
         "defaults": {
           "custom": {},
@@ -640,7 +674,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
+        "h": 6,
         "w": 6,
         "x": 18,
         "y": 5
@@ -656,7 +690,7 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -665,6 +699,12 @@
       },
       "pluginVersion": "7.1.5",
       "targets": [
+        {
+          "expr": "(range_avg(electricity_draw) * $__range_s / 3600) * $electricity_unit + ($electricity_standing * $__range_s / 86400)",
+          "interval": "",
+          "legendFormat": "Selected",
+          "refId": "D"
+        },
         {
           "expr": "electricity_consumption_daily * $electricity_unit + $electricity_standing",
           "groupBy": [
@@ -681,7 +721,7 @@
               "type": "fill"
             }
           ],
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "Today",
           "measurement": "electricity",
@@ -709,14 +749,14 @@
         },
         {
           "expr": "electricity_consumption_weekly * $electricity_unit + (7*$electricity_standing)",
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "This week",
           "refId": "B"
         },
         {
           "expr": "electricity_consumption_monthly * $electricity_unit + (30*$electricity_standing)",
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "This month",
           "refId": "C"
@@ -743,7 +783,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 9
+        "y": 11
       },
       "hiddenSeries": false,
       "id": 2,
@@ -895,7 +935,7 @@
         {
           "decimals": 2,
           "format": "currencyGBP",
-          "label": "Cost",
+          "label": "Cost per Hour",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -914,7 +954,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 20
       },
       "id": 23,
       "panels": [],
@@ -927,6 +967,7 @@
       "fieldConfig": {
         "defaults": {
           "custom": {},
+          "decimals": 2,
           "mappings": [
             {
               "id": 0,
@@ -943,10 +984,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           },
@@ -955,10 +992,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
+        "h": 7,
         "w": 6,
         "x": 6,
-        "y": 19
+        "y": 21
       },
       "id": 7,
       "interval": null,
@@ -971,7 +1008,7 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -980,6 +1017,13 @@
       },
       "pluginVersion": "7.1.5",
       "targets": [
+        {
+          "expr": "(range_max(gas_meter_reading) - range_min(gas_meter_reading)) * 10.96497333",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Selected",
+          "refId": "D"
+        },
         {
           "expr": "gas_consumption_daily",
           "groupBy": [
@@ -996,7 +1040,7 @@
               "type": "fill"
             }
           ],
-          "instant": true,
+          "instant": false,
           "interval": "30m",
           "legendFormat": "Today",
           "measurement": "gas",
@@ -1024,20 +1068,20 @@
         },
         {
           "expr": "gas_consumption_weekly",
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "This Week",
           "refId": "B"
         },
         {
           "expr": "gas_consumption_monthly",
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "This Month",
           "refId": "C"
         }
       ],
-      "title": "Used (Energy)",
+      "title": "Usage (Energy)",
       "type": "stat"
     },
     {
@@ -1063,10 +1107,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
+        "h": 7,
         "w": 6,
         "x": 12,
-        "y": 19
+        "y": 21
       },
       "id": 28,
       "interval": null,
@@ -1079,7 +1123,7 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -1088,6 +1132,12 @@
       },
       "pluginVersion": "7.1.5",
       "targets": [
+        {
+          "expr": "(range_max(gas_meter_reading) - range_min(gas_meter_reading)) * 10.96497333 * $gas_unit",
+          "interval": "",
+          "legendFormat": "Selected",
+          "refId": "D"
+        },
         {
           "expr": "(gas_consumption_daily) * $gas_unit",
           "groupBy": [
@@ -1104,7 +1154,7 @@
               "type": "fill"
             }
           ],
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "Today",
           "measurement": "gas",
@@ -1132,14 +1182,14 @@
         },
         {
           "expr": "(gas_consumption_weekly) * $gas_unit",
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "This week",
           "refId": "B"
         },
         {
-          "expr": "(gas_consumption_monthly) * 0.0277",
-          "instant": true,
+          "expr": "(gas_consumption_monthly) * $gas_unit",
+          "instant": false,
           "interval": "",
           "legendFormat": "This month",
           "refId": "C"
@@ -1151,6 +1201,7 @@
     {
       "cacheTimeout": null,
       "datasource": "${DS_VICTORIAMETRICS}",
+      "description": "Including standing charges",
       "fieldConfig": {
         "defaults": {
           "custom": {},
@@ -1171,10 +1222,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
+        "h": 7,
         "w": 6,
         "x": 18,
-        "y": 19
+        "y": 21
       },
       "id": 31,
       "interval": null,
@@ -1187,7 +1238,7 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -1196,6 +1247,12 @@
       },
       "pluginVersion": "7.1.5",
       "targets": [
+        {
+          "expr": "(range_max(gas_meter_reading) - range_min(gas_meter_reading)) * 10.96497333 * $gas_unit + ($gas_standing * $__range_s / 86400)",
+          "interval": "",
+          "legendFormat": "Selected",
+          "refId": "D"
+        },
         {
           "expr": "(gas_consumption_daily) * $gas_unit + $gas_standing",
           "groupBy": [
@@ -1212,7 +1269,7 @@
               "type": "fill"
             }
           ],
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "Today",
           "measurement": "gas",
@@ -1240,7 +1297,7 @@
         },
         {
           "expr": "(gas_consumption_weekly) * $gas_unit + (7*$gas_standing)",
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "This week",
           "refId": "B"
@@ -1248,13 +1305,13 @@
         {
           "expr": "(gas_consumption_monthly) * $gas_unit + (30*$gas_standing)",
           "hide": false,
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "This month",
           "refId": "C"
         }
       ],
-      "title": "Cost today",
+      "title": "Total Cost",
       "type": "stat"
     },
     {
@@ -1289,7 +1346,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 28
       },
       "hiddenSeries": false,
       "id": 8,
@@ -1326,7 +1383,7 @@
       "targets": [
         {
           "alias": "Usage",
-          "expr": "delta(sum(gas_consumption_daily))",
+          "expr": "increase(gas_consumption_daily)",
           "groupBy": [
             {
               "params": [
@@ -1369,7 +1426,7 @@
         },
         {
           "alias": "Cost",
-          "expr": "delta(sum(gas_consumption_daily)) * 0.0277",
+          "expr": "increase(gas_consumption_daily) * $gas_unit",
           "groupBy": [
             {
               "params": [
@@ -1442,7 +1499,7 @@
         {
           "decimals": 2,
           "format": "currencyGBP",
-          "label": "Cost",
+          "label": "Cost per Hour",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -1455,7 +1512,7 @@
       }
     }
   ],
-  "refresh": false,
+  "refresh": "5m",
   "schemaVersion": 26,
   "style": "dark",
   "tags": [],
@@ -1593,5 +1650,5 @@
   "timezone": "",
   "title": "Energy usage",
   "uid": "7Nqpoj-ik",
-  "version": 13
+  "version": 20
 }
