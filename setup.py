@@ -38,4 +38,10 @@ setup(
     data_files=[
         ('/etc/energy-usage/config.yaml.example', ['config.yaml.example']),
     ],
+
+    install_requires=[
+        'confuse~=1.3',
+        'influxdb~=5.3',
+        'paho-mqtt~=1.5',
+    ]
 )
