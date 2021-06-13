@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.4 (2021-06-13)
+
+Improvements:
+
+* Added grafana dashboard
+* Added dependencies to setup.py
+* Published to pypi
+
+## v0.3 (2020-09-13)
+
+Misc:
+
+* Add documentation
+
 ## v0.2 (2020-09-06)
 
 Bug fixes:
