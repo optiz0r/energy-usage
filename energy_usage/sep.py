@@ -31,30 +31,7 @@ def parse_sep(topic, payload_str):
 
     payload = json.loads(payload_str)
 
-    try:
-        assert(_get_metric(["elecMtr", "0702", "03", "00"]) == 0)  # kWh
-        assert(_get_metric(["gasMtr", "0702", "03", "01"]) == 1)  # m3
-        assert(_get_metric(["gasMtr", "0702", "03", "12"]) == 0)  # kWh
-    except AssertionError:
-        logger.warning("Received a payload without expected data")
-        return None
-
     timestamp = datetime.datetime.fromtimestamp(payload["gmtime"], tz=datetime.timezone.utc)
-    electricity_consumption = _get_metric(["elecMtr", "0702", "04", "00"])
-    electricity_daily_consumption = _get_metric(["elecMtr", "0702", "04", "01"])
-    electricity_weekly_consumption = _get_metric(["elecMtr", "0702", "04", "30"])
-    electricity_monthly_consumption = _get_metric(["elecMtr", "0702", "04", "40"])
-    electricity_multiplier = _get_metric(["elecMtr", "0702", "03", "01"])
-    electricity_divisor = _get_metric(["elecMtr", "0702", "03", "02"])
-    electricity_meter = _get_metric(["elecMtr", "0702", "00", "00"])
-    electricity_mpan = _get_metric(["elecMtr", "0702", "03", "07"], str)
-    gas_daily_consumption = _get_metric(["gasMtr", "0702", "0C", "01"])
-    gas_weekly_consumption = _get_metric(["gasMtr", "0702", "0C", "30"])
-    gas_monthly_consumption = _get_metric(["gasMtr", "0702", "0C", "40"])
-    gas_multiplier = _get_metric(["gasMtr", "0702", "03", "01"])
-    gas_divisor = _get_metric(["gasMtr", "0702", "03", "02"])
-    gas_meter = _get_metric(["gasMtr", "0702", "00", "00"])
-    gas_mpan = _get_metric(["gasMtr", "0702", "03", "07"], str)
     device_gid = _get_metric(["gid"], str)
 
     data = {
@@ -63,7 +40,21 @@ def parse_sep(topic, payload_str):
             'topic': topic,
             'gid': device_gid,
         },
-        'electricity': {
+    }
+
+    try:
+        assert(_get_metric(["elecMtr", "0702", "03", "00"]) == 0)  # kWh
+    
+        electricity_consumption = _get_metric(["elecMtr", "0702", "04", "00"])
+        electricity_daily_consumption = _get_metric(["elecMtr", "0702", "04", "01"])
+        electricity_weekly_consumption = _get_metric(["elecMtr", "0702", "04", "30"])
+        electricity_monthly_consumption = _get_metric(["elecMtr", "0702", "04", "40"])
+        electricity_multiplier = _get_metric(["elecMtr", "0702", "03", "01"])
+        electricity_divisor = _get_metric(["elecMtr", "0702", "03", "02"])
+        electricity_meter = _get_metric(["elecMtr", "0702", "00", "00"])
+        electricity_mpan = _get_metric(["elecMtr", "0702", "03", "07"], str)
+
+        data.update({'electricity': {
             'tags': {
                 'mpan': electricity_mpan,
             },
@@ -74,8 +65,23 @@ def parse_sep(topic, payload_str):
                 'consumption_monthly': electricity_monthly_consumption * electricity_multiplier / electricity_divisor,
                 'meter_reading': electricity_meter * electricity_multiplier / electricity_divisor,
             },
-        },
-        'gas': {
+        }})
+    except AssertionError:
+        pass
+
+    try:
+        assert(_get_metric(["gasMtr", "0702", "03", "01"]) == 1)  # m3
+        assert(_get_metric(["gasMtr", "0702", "03", "12"]) == 0)  # kWh
+    
+        gas_daily_consumption = _get_metric(["gasMtr", "0702", "0C", "01"])
+        gas_weekly_consumption = _get_metric(["gasMtr", "0702", "0C", "30"])
+        gas_monthly_consumption = _get_metric(["gasMtr", "0702", "0C", "40"])
+        gas_multiplier = _get_metric(["gasMtr", "0702", "03", "01"])
+        gas_divisor = _get_metric(["gasMtr", "0702", "03", "02"])
+        gas_meter = _get_metric(["gasMtr", "0702", "00", "00"])
+        gas_mpan = _get_metric(["gasMtr", "0702", "03", "07"], str)
+        
+        data.update({'gas': {
             'tags': {
                 'mpan': gas_mpan,
             },
@@ -85,8 +91,13 @@ def parse_sep(topic, payload_str):
                 'consumption_monthly': gas_monthly_consumption * gas_multiplier / gas_divisor,
                 'meter_reading': gas_meter * gas_multiplier / gas_divisor,
             },
-        },
-    }
+        }})
+    except AssertionError:
+        pass
+
+    if 'electricity' not in data and 'gas' not in data:
+        logger.warning("Received a payload without either electricity or gas data")
+        return None
 
     return data
 
@@ -95,11 +106,12 @@ def usage_to_datapoints(usage):
     datapoints = []
 
     for utility in ['electricity', 'gas']:
-        datapoints.append({
-            "measurement": utility,
-            "tags": {**usage['tags'], **usage[utility]['tags']},
-            "time": usage['timestamp'].isoformat(),
-            "fields": usage[utility]['metrics'],
-        })
+        if utility in usage:
+            datapoints.append({
+                "measurement": utility,
+                "tags": {**usage['tags'], **usage[utility]['tags']},
+                "time": usage['timestamp'].isoformat(),
+                "fields": usage[utility]['metrics'],
+            })
 
     return datapoints

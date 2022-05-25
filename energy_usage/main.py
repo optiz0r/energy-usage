@@ -99,8 +99,9 @@ def main():
             usage = parse_sep(msg.topic, msg.payload)
             if usage:
                 usage_datapoints = usage_to_datapoints(usage)
+                logger.debug('Writing metrics to influx: %s', usage_datapoints)
                 if not config["noop"].get(bool):
-                    influx_client.write_points(usage_datapoints)
+                    influx_client.write_points(usage_datapoints, noop=config["noop"].get(bool))
         except KeyboardInterrupt:
             break
 
