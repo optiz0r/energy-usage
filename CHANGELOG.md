@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.5 (2022-05-25)
+
+Improvements:
+
+* Support messages containing data for a single meter
+  (electricity or gas only)
+
 ## v0.4 (2021-06-13)
 
 Improvements:
