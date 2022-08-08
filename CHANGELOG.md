@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.6 (2022-08-08)
+
+Improvements:
+
+* Add support for local MQTT feature of glow CAD
+* Add grafana dashboard which uses live tariff data for
+  local MQTT data
+
 ## v0.5 (2022-05-25)
 
 Improvements:
