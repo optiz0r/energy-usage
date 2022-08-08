@@ -1,4 +1,5 @@
 import logging
+import os
 
 import paho.mqtt.client as mqtt
 
@@ -22,8 +23,11 @@ class MqttClient:
         self.client.loop_stop()
 
     def connect(self):
-        self.client.username_pw_set(self.username, password=self.password)
-        self.client.tls_set(ca_certs=self.ca_certs)
+        if self.username or self.password:
+            self.client.username_pw_set(self.username, password=self.password)
+        if self.ca_certs != '':
+            self.logger("Enabling TLS using '%s'", self.ca_certs)
+            self.client.tls_set(ca_certs=self.ca_certs)
         self.client.connect(self.server, self.port, 60)
 
     def run(self):
