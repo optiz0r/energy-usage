@@ -30,7 +30,7 @@ mqtt:
   port: 1883
   username: "" # Disables auth
   password: "" # Disables auth
-  topic: "glow/SENSOR/#"
+  topic: "glow/#"
 influx:
   server: 10.0.0.1
   port: 8428
