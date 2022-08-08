@@ -11,6 +11,33 @@ The config file should be placed into one of the following locations:
 * `~/.config/energy-usage/config.yaml`
 * Any dir pointed at by `ENERGY-USAGEDIR` env var
 
+### Local MQTT
+
+Version 0.6 and above supports local MQTT as offered by recent glow CAD firmwares
+([announcement blog post](https://medium.com/@joshua.cooper/glow-local-mqtt-f69b776b7af4)).
+The data format is subtly different:
+- The `gid` label will not be populated
+- `unit_rate` and `standing_charge` metrics will be published for each meter type
+- `gas_meter_reading_kwh` will also be published
+
+To use with a simple local MQTT broker with no authentication, use a config file like:
+
+```yaml
+---
+ca_certs: "" # Disables TLS
+mqtt:
+  server: 10.0.0.1
+  port: 1883
+  username: "" # Disables auth
+  password: "" # Disables auth
+  topic: "glow/SENSOR/#"
+influx:
+  server: 10.0.0.1
+  port: 8428
+```
+
+And configure the CAD device with mqtt server `10.0.0.1`, port `1883` and topic `glow`
+
 ## Pip usage
 
 ### Installation
@@ -42,11 +69,19 @@ docker run -v config.yaml:/etc/energy-usage/config.yaml energy-usage:latest
 
 ## Grafana
 
+### Hosted MQTT
+
 `grafana.energy-usage.json` contains an example Grafana dashboard which consumes this data (using the prometheus query interface of VictoriaMetrics).
 
 ![Grafana dashboard screenshot](energy-usage-dashboard.png)
 
 Upon import of the dashboard, you will be prompted to select your datasource, and enter your unit and standing charges. These are used to plot the costs of realtime usage data, and the daily/weekly/monthly consumption using accumulated usage statistics by the meters. The dashboard does not currently use live tarrif data, as this is not provided in the Bright MQTT feed.
+
+### Local MQTT
+
+`grafana.energy-usage.local-mqtt.json` contains a similar dashboard for use with the local mqtt data format.
+
+Upon import of the dashboard, you will be prompted to select your datasource. When using local MQTT, the tariff data is included in the published metrics, and the costs displayed are using the live tariff data.
 
 ## Tested with:
 
